@@ -1,0 +1,23 @@
+{
+  "name": "sistema-experto-integrales-prolog",
+  "version": "1.0.0",
+  "description": "Proyecto Final de Programación Declarativa Ciclo 02/2026 - Sistema Experto de Solución de Integrales y Área bajo la Curva con SWI-Prolog y JavaScript Puro",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "prolog": "swipl -s backend/server.pl",
+    "test": "swipl -s backend/tests.pl"
+  },
+  "keywords": [
+    "prolog",
+    "swi-prolog",
+    "expert-system",
+    "calculus",
+    "integrals",
+    "area-under-curve",
+    "javascript"
+  ],
+  "author": "Equipo de Programación Declarativa",
+  "license": "MIT"
+}
+

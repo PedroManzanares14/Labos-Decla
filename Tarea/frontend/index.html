@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Integrales & Área | Sistema Experto Prolog</title>
+    <!-- iconito -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>∫</text></svg>">
+    <!-- las fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- formulas bonitas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <!-- estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- barra de arriba -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-logo">∫</div>
+                <div>
+                    <h1 class="brand-title">Sistema Experto de Integrales</h1>
+                    <p class="brand-subtitle">Programación Declarativa • SWI-Prolog + JavaScript Puro</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggleBtn" class="btn-icon" title="Cambiar tema (Oscuro/Claro)">
+                    <span class="theme-icon-dark">🌙</span>
+                    <span class="theme-icon-light" style="display: none;">☀️</span>
+                </button>
+                <button id="infoModalBtn" class="btn-secondary" title="Ver información del proyecto y reglas">
+                    <span class="btn-icon-text">ℹ️</span> Guía & Reglas
+                </button>
+                <div class="server-badge" id="serverStatusBadge">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Conectando...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- contenido principal -->
+        <main class="main-content">
+            <!-- entrada y controles -->
+            <section class="panel-left">
+                <!-- formulario -->
+                <div class="card card-input">
+                    <div class="card-header">
+                        <h2>Definición de la Integral</h2>
+                        <span class="badge-tag">Entrada de Expresión</span>
+                    </div>
+
+                    <form id="integralForm" autocomplete="off">
+                        <!-- funcion -->
+                        <div class="form-group">
+                            <div class="label-row">
+                                <label for="exprInput">Función a integrar <span class="math-sym">f(x)</span>:</label>
+                                <span class="field-hint">Ej: <code>sin(x)</code>, <code>x^2 + 3*x</code>, <code>e^(2*x)</code></span>
+                            </div>
+                            <div class="input-with-preview">
+                                <div class="integral-symbol-prefix">∫</div>
+                                <input 
+                                    type="text" 
+                                    id="exprInput" 
+                                    placeholder="Ingresa la función f(x)" 
+                                    value="x^2 - 4"
+                                    required
+                                    spellcheck="false"
+                                >
+                                <div class="integral-symbol-suffix">dx</div>
+                            </div>
+                            <!-- preview en vivo -->
+                            <div class="live-preview-box" id="livePreviewContainer">
+                                <span class="preview-label">Vista previa matemática:</span>
+                                <div id="liveMathPreview" class="katex-preview"></div>
+                            </div>
+                        </div>
+
+                        <!-- teclado rapido -->
+                        <div class="virtual-keypad">
+                            <span class="keypad-title">Atajos matemáticos:</span>
+                            <div class="keypad-grid">
+                                <button type="button" class="key-btn" data-insert="x">x</button>
+                                <button type="button" class="key-btn" data-insert="+">+</button>
+                                <button type="button" class="key-btn" data-insert="-">-</button>
+                                <button type="button" class="key-btn" data-insert="*">*</button>
+                                <button type="button" class="key-btn" data-insert="/">/</button>
+                                <button type="button" class="key-btn" data-insert="^">^</button>
+                                <button type="button" class="key-btn" data-insert="sqrt()">√</button>
+                                <button type="button" class="key-btn" data-insert="pi">π</button>
+                                <button type="button" class="key-btn" data-insert="e">e</button>
+                                <button type="button" class="key-btn" data-insert="sin()">sin</button>
+                                <button type="button" class="key-btn" data-insert="cos()">cos</button>
+                                <button type="button" class="key-btn" data-insert="tan()">tan</button>
+                                <button type="button" class="key-btn" data-insert="asin()">asin</button>
+                                <button type="button" class="key-btn" data-insert="acos()">acos</button>
+                                <button type="button" class="key-btn" data-insert="atan()">atan</button>
+                                <button type="button" class="key-btn" data-insert="sh()">sh</button>
+                                <button type="button" class="key-btn" data-insert="cosh()">cosh</button>
+                                <button type="button" class="key-btn" data-insert="tanh()">tanh</button>
+                                <button type="button" class="key-btn" data-insert="arcsinh()">asinh</button>
+                                <button type="button" class="key-btn" data-insert="arccosh()">acosh</button>
+                                <button type="button" class="key-btn" data-insert="arctanh()">atanh</button>
+                                <button type="button" class="key-btn" data-insert="ln()">ln</button>
+                                <button type="button" class="key-btn" data-insert="(">(</button>
+                                <button type="button" class="key-btn" data-insert=")">)</button>
+                            </div>
+                        </div>
+
+                        <!-- limites -->
+                        <div class="limits-section">
+                            <div class="limits-header">
+                                <label>Límites de Integración para el Área bajo la Curva:</label>
+                                <span class="field-hint">Opcionales (dejar vacíos para integral indefinida pura)</span>
+                            </div>
+                            <div class="limits-row">
+                                <div class="limit-col">
+                                    <label for="limitA">Límite inferior <span class="math-sym">a</span>:</label>
+                                    <input type="text" id="limitA" placeholder="Ej: 0, -2, pi" value="-2">
+                                </div>
+                                <div class="limits-arrow">➔</div>
+                                <div class="limit-col">
+                                    <label for="limitB">Límite superior <span class="math-sym">b</span>:</label>
+                                    <input type="text" id="limitB" placeholder="Ej: 2, 4, 2*pi" value="2">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="form-actions">
+                            <button type="submit" id="solveBtn" class="btn-primary">
+                                <span class="btn-icon-text">⚡</span> Resolver Integral
+                            </button>
+                            <button type="button" id="clearBtn" class="btn-secondary">
+                                <span class="btn-icon-text">🧹</span> Limpiar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tarjeta de Ejemplos Rápidos (Catálogo de las 22 reglas del enunciado) -->
+                <div class="card card-examples">
+                    <div class="card-header">
+                        <h2>Catálogo de Reglas Oficiales (22 Casos)</h2>
+                        <span class="badge-tag">1 Clic para Probar</span>
+                    </div>
+                    <p class="examples-intro">Selecciona cualquiera de las integrales para cargar automáticamente su expresión y límites recomendados:</p>
+                    
+                    <div class="examples-filter">
+                        <button class="filter-tab active" data-category="all">Todos (22)</button>
+                        <button class="filter-tab" data-category="poly">Polinomiales</button>
+                        <button class="filter-tab" data-category="trig">Trigonométricas</button>
+                        <button class="filter-tab" data-category="inv">Inversas</button>
+                        <button class="filter-tab" data-category="hyp">Hiperbólicas</button>
+                        <button class="filter-tab" data-category="exp">Exponenciales</button>
+                    </div>
+
+                    <div class="examples-grid" id="examplesContainer">
+                        <!-- Generados dinámicamente desde app.js -->
+                    </div>
+                </div>
+
+                <!-- Historial de Cálculos Recientes -->
+                <div class="card card-history" id="historyCard">
+                    <div class="card-header">
+                        <h2>Historial Reciente</h2>
+                        <button type="button" id="clearHistoryBtn" class="btn-text">Borrar</button>
+                    </div>
+                    <ul class="history-list" id="historyList">
+                        <li class="history-empty">Aún no hay cálculos en el historial.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Columna Derecha: Resultados detallados y Gráfica interactiva -->
+            <section class="panel-right">
+                <!-- Tarjeta de Resultados Simbólicos y Numéricos -->
+                <div class="card card-results" id="resultsCard">
+                    <div class="card-header">
+                        <h2>Resultado del Análisis Simbólico</h2>
+                        <span class="badge-status success" id="resultStatusBadge">Listo</span>
+                    </div>
+
+                    <!-- Mensaje de bienvenida inicial -->
+                    <div id="welcomePlaceholder" class="placeholder-box">
+                        <div class="placeholder-icon">📐</div>
+                        <h3>Listo para resolver</h3>
+                        <p>Ingresa una expresión o haz clic en cualquiera de los 22 ejemplos oficiales para obtener la primitiva simbólica y el área bajo la curva.</p>
+                    </div>
+
+                    <!-- Mensaje de Error (oculto por defecto) -->
+                    <div id="errorContainer" class="alert-box error" style="display: none;">
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <strong id="errorTitle">Error en la consulta:</strong>
+                            <p id="errorMessage"></p>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de Resultados Completos -->
+                    <div id="resultsDetails" style="display: none;">
+                        <!-- Integral Indefinida / Primitiva -->
+                        <div class="result-block">
+                            <span class="result-label">1. Integral Indefinida (Antiderivada):</span>
+                            <div class="math-display-card">
+                                <div id="latexAntiderivative" class="latex-render"></div>
+                                <div class="math-plain-text">
+                                    <span class="code-tag">Prolog Term:</span>
+                                    <code id="plainAntiderivative"></code>
+                                    <button type="button" class="copy-btn" id="copyAntiderivBtn" title="Copiar al portapapeles">📋</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Regla Identificada por la Base de Conocimiento -->
+                        <div class="result-block">
+                            <span class="result-label">2. Regla Aplicada por el Sistema Experto:</span>
+                            <div class="rule-badge" id="ruleBadge">
+                                <span class="rule-icon">🧠</span>
+                                <span id="ruleText"></span>
+                            </div>
+                        </div>
+
+                        <!-- Cálculo del Área y Teorema de Barrow (si hay límites) -->
+                        <div class="result-block" id="areaResultBlock">
+                            <span class="result-label">3. Área bajo la Curva (Evaluación de Barrow):</span>
+                            
+                            <div class="area-hero-card">
+                                <div class="area-value-container">
+                                    <span class="area-caption">Valor del Área Calculada</span>
+                                    <div class="area-number" id="areaValueDisplay">0.0000</div>
+                                    <span class="area-units">unidades cuadradas (u²)</span>
+                                </div>
+                                <div class="barrow-formula-container">
+                                    <span class="formula-caption">Teorema Fundamental del Cálculo:</span>
+                                    <div id="latexBarrowFormula" class="latex-render"></div>
+                                    <div class="limits-detail-tags">
+                                        <span class="limit-tag">F(a) = <strong id="faValueDisplay">0</strong></span>
+                                        <span class="limit-tag">F(b) = <strong id="fbValueDisplay">0</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta del Graficador Interactivo Canvas -->
+                <div class="card card-graph">
+                    <div class="card-header">
+                        <div class="graph-header-title">
+                            <h2>Visualización Geométrica del Área</h2>
+                            <span class="badge-tag">Canvas 2D Interactivo</span>
+                        </div>
+                        <div class="graph-controls">
+                            <button type="button" id="zoomInBtn" class="graph-btn" title="Acercar">+</button>
+                            <button type="button" id="zoomOutBtn" class="graph-btn" title="Alejar">−</button>
+                            <button type="button" id="resetZoomBtn" class="graph-btn" title="Centrar / Restablecer">⟲</button>
+                        </div>
+                    </div>
+
+                    <div class="graph-wrapper">
+                        <canvas id="integralCanvas" width="800" height="420"></canvas>
+                        <!-- Tooltip flotante con coordenadas -->
+                        <div id="graphTooltip" class="graph-tooltip" style="display: none;"></div>
+                        <!-- Leyenda interactiva -->
+                        <div class="graph-legend">
+                            <span class="legend-item"><span class="legend-dot curve-dot"></span> f(x) Curva</span>
+                            <span class="legend-item"><span class="legend-dot area-dot"></span> Área sombreada [a, b]</span>
+                            <span class="legend-item"><span class="legend-dot axis-dot"></span> Ejes cartesianos</span>
+                        </div>
+                    </div>
+                    <div class="graph-footer-hint">
+                        <span>💡 Arrastra con el ratón para desplazar la gráfica (Pan) y usa la rueda del ratón o los botones para hacer Zoom.</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Pie de Página -->
+        <footer class="app-footer">
+            <p>
+                <strong>Proyecto Final de Programación Declarativa</strong> • Ciclo 02/2026 • 
+                Universidad Centroamericana José Simeón Cañas (UCA) / DEI
+            </p>
+            <p class="footer-meta">
+                Motor Lógico: <strong>SWI-Prolog 9.x</strong> | Interfaz: <strong>JavaScript Puro (ES6+)</strong> | Render: <strong>HTML5 Canvas + KaTeX</strong>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Modal de Información del Proyecto -->
+    <div id="infoModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Información del Proyecto & Reglas Oficiales</h3>
+                <button type="button" class="modal-close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>🎯 Objetivo</h4>
+                <p>Implementar un sistema experto en programación lógica declarativa con SWI-Prolog, capaz de resolver integrales simbólicas y evaluar el área bajo la curva mediante el Teorema Fundamental del Cálculo (regla de Barrow), comunicándose con una interfaz transaccional en JavaScript puro.</p>
+
+                <h4>📋 Las 22 Reglas del Problema Oficial</h4>
+                <div class="rules-table-container">
+                    <table class="rules-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Caso Oficial</th>
+                                <th>Expresión Matemática</th>
+                                <th>Antiderivada F(x)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>a</td><td>Constante numérica</td><td>∫ k dx</td><td>k · x</td></tr>
+                            <tr><td>b</td><td>Variable lineal</td><td>∫ x dx</td><td>x² / 2</td></tr>
+                            <tr><td>c</td><td>Constante por variable</td><td>∫ (k * x) dx</td><td>k · (x² / 2)</td></tr>
+                            <tr><td>d</td><td>Potencia entera</td><td>∫ x^n dx</td><td>x^(n+1)/(n+1) [ln|x| si n=-1]</td></tr>
+                            <tr><td>e</td><td>Función u(x)</td><td>∫ u dx</td><td>Regla simbólica aplicable</td></tr>
+                            <tr><td>f</td><td>Multiplicación por k</td><td>∫ (k * u) dx</td><td>k · ∫ u dx</td></tr>
+                            <tr><td>g</td><td>Suma de funciones</td><td>∫ (u + v) dx</td><td>∫ u dx + ∫ v dx</td></tr>
+                            <tr><td>h</td><td>Resta de funciones</td><td>∫ (u - v) dx</td><td>∫ u dx - ∫ v dx</td></tr>
+                            <tr><td>i</td><td>Exponencial a^x</td><td>∫ a^x dx</td><td>a^x / ln(a) [e^x si a=e]</td></tr>
+                            <tr><td>j</td><td>Exponencial compuesta</td><td>∫ a^u dx</td><td>a^(k·x) / (k · ln(a))</td></tr>
+                            <tr><td>k</td><td>Seno</td><td>∫ sin(x) dx</td><td>-cos(x)</td></tr>
+                            <tr><td>l</td><td>Coseno</td><td>∫ cos(x) dx</td><td>sin(x)</td></tr>
+                            <tr><td>m</td><td>Tangente</td><td>∫ tan(x) dx</td><td>-ln|cos(x)|</td></tr>
+                            <tr><td>n</td><td>Arco seno</td><td>∫ asin(x) dx</td><td>x·asin(x) + √(1 - x²)</td></tr>
+                            <tr><td>o</td><td>Arco coseno</td><td>∫ acos(x) dx</td><td>x·acos(x) - √(1 - x²)</td></tr>
+                            <tr><td>p</td><td>Arco tangente</td><td>∫ atan(x) dx</td><td>x·atan(x) - ½ ln(1 + x²)</td></tr>
+                            <tr><td>q</td><td>Seno hiperbólico</td><td>∫ sh(x) dx</td><td>cosh(x)</td></tr>
+                            <tr><td>r</td><td>Coseno hiperbólico</td><td>∫ cosh(x) dx</td><td>sinh(x)</td></tr>
+                            <tr><td>s</td><td>Tangente hiperbólica</td><td>∫ tanh(x) dx</td><td>ln(cosh(x))</td></tr>
+                            <tr><td>t</td><td>Arco seno hiperbólico</td><td>∫ arcsinh(x) dx</td><td>x·asinh(x) - √(x² + 1)</td></tr>
+                            <tr><td>u</td><td>Arco coseno hiperbólico</td><td>∫ arccosh(x) dx</td><td>x·acosh(x) - √(x² - 1)</td></tr>
+                            <tr><td>v</td><td>Arco tangente hiperbólica</td><td>∫ arctanh(x) dx</td><td>x·atanh(x) + ½ ln|1 - x²|</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-primary" id="modalUnderstoodBtn">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de la aplicación (Vanilla JS puro) -->
+    <script src="js/graph.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
